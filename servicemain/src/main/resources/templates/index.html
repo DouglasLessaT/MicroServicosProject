@@ -2,12 +2,76 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-do-list</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
     <body>
-        <h1>To do list</h1>
 
-        <p th:text="${mensagem}" ></p>
+        <div class="container mt-4">
+            <h2 class="text-center mb-4">Lista de Tarefas</h2>
+
+            <!-- Formulário para adicionar ou editar uma tarefa -->
+            <form th:action="@{/save}" th:object="${taskRequest}" method="post">
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descrição</label>
+                    <input type="text" id="description" th:field="*{description}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="urlBucket" class="form-label">URL do Bucket</label>
+                    <input type="text" id="urlBucket" th:field="*{urlBucket}" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="typeAction" class="form-label">Tipo de Ação</label>
+                    <input type="text" id="typeAction" th:field="*{typeAction}" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
+            </form>
+
+            <div th:if="${tasks.isEmpty()}">
+                <p>Não há tarefas para exibir.</p>
+            </div>
+
+            <div th:if="${not tasks.isEmpty()}">
+                <table class="table table-bordered mt-4">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">URL do Bucket</th>
+                        <th scope="col">Tipo de Ação</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="task : ${tasks}">
+                        <td th:text="${task.id}"></td>
+                        <td th:text="${task.description}"></td>
+                        <td th:text="${task.urlBucket}"></td>
+                        <td th:text="${task.typeAction}"></td>
+                        <td>
+                            <!-- Botões de Editar e Deletar -->
+                            <a th:href="@{/edit/{id}(id=${task.id})}" class="btn btn-warning btn-sm">Editar</a>
+                            <form th:action="@{/delete/{id}(id=${task.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
 
     </body>
+
+    <script>
+
+    </script>
+
 </html>

@@ -24,27 +24,4 @@ public class ConfigAws {
                 .build();
     }
 
-    /*
-    * "/error**",
-        "/index**",
-        "/doc**",
-        "/auth/**",
-        "/auth/login",
-        "/swagger-ui/**",
-        "/v3/api-docs/**"
-      */
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeRequests()
-//                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html")
-//                .permitAll()
-//                .anyRequest()
-//                .authenticated()
-//                .and()
-//                .formLogin().disable()  // Desativa a tela de login padrão
-//                .csrf().disable();
-//        return http.build();
-//    }
-
 }
