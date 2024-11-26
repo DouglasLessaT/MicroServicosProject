@@ -8,14 +8,14 @@ const toListRepository = new ToListRepository();
 export class ToListService {
   // URLs das filas SQS
   private queueUrls = {
-    apiPrincipalQueue: 'https://sqs.us-east-1.amazonaws.com/your-account-id/api-principal-queue',
-    notificationQueue: 'https://sqs.us-east-1.amazonaws.com/your-account-id/notification-queue'
+    apiPrincipalQueue: 'https://sqs.us-east-2.amazonaws.com/891377294367/toList',
+    notificationQueue: 'https://sqs.us-east-2.amazonaws.com/891377294367/toListNotification'
   };
 
 
   async create(item: Partial<ToList>): Promise<ToList> {
     const newToList = await toListRepository.create(item);
-    await this.sendToSQS(newToList, 'notificationQueue');  
+    await this.sendToSQS(newToList, 'notificationQueue');
     return newToList;
   }
 
@@ -37,7 +37,7 @@ export class ToListService {
     await toListRepository.delete(id);
   }
 
-  private async sendToSQS(toList: ToList, queueType: 'notificationQueue'): Promise<void> {
+  public async sendToSQS(toList: ToList, queueType: 'notificationQueue'): Promise<void> {
     const params = {
       QueueUrl: this.queueUrls[queueType],  
       MessageBody: JSON.stringify(toList), 
@@ -57,14 +57,14 @@ export class ToListService {
     try {
       const messages = await sqs.receiveMessage({
         QueueUrl: queueUrl,
-        MaxNumberOfMessages: 10,  
-        WaitTimeSeconds: 20,  
+        MaxNumberOfMessages: 10,
+        WaitTimeSeconds: 20,
       }).promise();
 
       if (messages.Messages) {
         for (const message of messages.Messages) {
-          const toListData: ToList = JSON.parse(message.Body!); 
-          
+          const toListData: ToList = JSON.parse(message.Body!);
+
           await toListRepository.create(toListData);
 
           console.log(`Tarefa salva no banco a partir da fila ${queueType}:`, toListData);
@@ -74,7 +74,7 @@ export class ToListService {
             QueueUrl: queueUrl,
             ReceiptHandle: message.ReceiptHandle!,
           }).promise();
-          
+
           console.log('Mensagem deletada da fila:', message.MessageId);
         }
       } else {
