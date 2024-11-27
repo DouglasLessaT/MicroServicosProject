@@ -31,6 +31,8 @@ public class MainController {
 
         var result = listTask.getTasks();
 
+        //Buscar arquivo do S3 
+
         log.info("Teste tela");
         model.addAttribute("tasks", result);
         model.addAttribute("taskRequest", new TaskRequest());
@@ -38,21 +40,24 @@ public class MainController {
     }
 
     @PostMapping("/save")
-    public String saveTask(@ModelAttribute TaskRequest taskRequest) {
+    public String saveTask(@ModelAttribute TaskRequest taskRequest, BindingResult bindingResult) {
         sqsService.postQueue(taskRequest);
+        //Salvar arquivo do S3 
         return "redirect:/index";
     }
 
     @GetMapping("/edit/{id}")
-    public String editTask(@ModelAttribute TaskRequest taskRequest) {
+    public String editTask(@ModelAttribute TaskRequest taskRequest, BindingResult bindingResult) {
         sqsService.postQueue(taskRequest);
-        return "index"; // Redireciona para a mesma página para edição
+        //Atualizar arquivo do S3
+        return "index"; 
     }
 
     // Método para excluir uma tarefa
     @PostMapping("/delete/{id}")
     public String deleteTask(@ModelAttribute TaskRequest taskRequest) {
         sqsService.postQueue(taskRequest);
+        //dletar arquivo do S3 
         return "redirect:/index";
     }
 
