@@ -11,4 +11,5 @@ public class TaskRequest{
     private String description;
     private String urlBucket;
     private String typeAction ;
+    private MultipartFile file;
 }

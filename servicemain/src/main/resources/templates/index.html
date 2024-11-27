@@ -29,6 +29,11 @@
                     <label for="typeAction" class="form-label">Tipo de Ação</label>
                     <input type="text" id="typeAction" th:field="*{typeAction}" class="form-control" required>
                 </div>
+                <div class="mb-3">
+                    <label for="typeAction" class="form-label">Tipo de Ação</label>
+                    <input type="file" id="typeAction" th:field="*{file}" class="form-control" required  />
+                </div>
+
                 <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
             </form>
 

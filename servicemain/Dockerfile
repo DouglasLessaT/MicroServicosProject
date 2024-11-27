@@ -1,1 +1,1 @@
-services:
+FROM ubuntu:latest
