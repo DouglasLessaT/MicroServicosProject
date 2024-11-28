@@ -1,9 +1,30 @@
 package com.servicemain.servicemain.services;
 
+import com.servicemain.servicemain.FileListenerException;
 import io.swagger.v3.oas.annotations.servers.Server;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.WritableResource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.amazonaws.services.s3.AmazonS3;
+import io.awspring.cloud.core.io.s3.PathMatchingSimpleStorageResourcePatternResolver;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -12,8 +33,7 @@ public class S3Service {
 
     @Value("${s3Bucket}")
     private String dir;
-    
-    @Autowired
+
     private final ResourceLoader resourceLoader;
 
     private ResourcePatternResolver resourcePatternResolver;

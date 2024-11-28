@@ -3,6 +3,7 @@ package com.servicemain.servicemain.model;
 import lombok.Data;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class TaskRequest{
