@@ -1,5 +1,5 @@
 // toListRespository
-import { AppDataSource } from "../config/data-source";
+import { AppDataSource } from "../config/DataSource";
 import { ToList } from "../models/ToList";
 import { Repository } from "typeorm";
 

@@ -2,7 +2,6 @@ import { ToList } from '../models/ToList';
 import { ToListService } from '../services/ToListService';
 
 const toListService = new ToListService();
-
 /**
  * Publica uma mensagem de tarefa criada ou atualizada na fila.
  * @param task - Objeto da tarefa que será enviada para a fila.
