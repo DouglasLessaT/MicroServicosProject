@@ -1,11 +1,13 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { AppDataSource } from './config/data-source';
+import { AppDataSource } from './config/DataSource';
 import { startToListConsumer } from './consumers/ToListConsumer';
 import { ToListService } from './services/ToListService';
 import { publishToNotificationQueue } from './publishers/ToListPublisher';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // Inicializa o serviço e a conexão do banco
 const app: Application = express();
 AppDataSource.initialize()
@@ -24,10 +26,10 @@ const toListService = new ToListService();
 
 // Criar um novo item e enviar para a fila
 app.post('/todo', async (req, res) => {
-  const { title, status, urlBucketAws } = req.body;
+  const { id, description, urlBucketAws } = req.body;  // Agora espera o UUID
 
   try {
-    const newTask = await toListService.create({ title, status, urlBucketAws });
+    const newTask = await toListService.create({ id, description, urlBucketAws }); // Passa o UUID
     await publishToNotificationQueue(newTask); // Publica na fila
     res.status(201).json({ message: 'Tarefa criada com sucesso!', data: newTask });
   } catch (error) {
