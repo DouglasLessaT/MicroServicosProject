@@ -5,11 +5,9 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 export class ToList {
   @PrimaryGeneratedColumn("uuid")
   id!: string; 
-  @Column()
-  title!: string;
 
   @Column()
-  status: string = "pending";
+  description!: string;
 
   @Column({ nullable: true })
   urlBucketAws?: string;
