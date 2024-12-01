@@ -1,12 +1,10 @@
 import { SQS } from 'aws-sdk';
 import dotenv from 'dotenv';
 
-// Carrega variáveis de ambiente
 dotenv.config();
 
-// Configuração do SQS
 const sqs = new SQS({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
