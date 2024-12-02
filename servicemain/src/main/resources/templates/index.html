@@ -15,29 +15,26 @@
         <div class="container mt-4">
             <h2 class="text-center mb-4">Lista de Tarefas</h2>
 
-            <!-- Formulário para adicionar ou editar uma tarefa -->
-            <form th:action="@{/save}" th:object="${taskRequest}" method="post">
+            <form id="form-task" enctype="multipart/form-data">
+
+                <input type="hidden" id="id" name="id" value="0">
+
                 <div class="mb-3">
                     <label for="description" class="form-label">Descrição</label>
-                    <input type="text" id="description" th:field="*{description}" class="form-control" required>
+                    <input type="text" id="description" name="description" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="urlBucket" class="form-label">URL do Bucket</label>
-                    <input type="text" id="urlBucket" th:field="*{urlBucket}" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="typeAction" class="form-label">Tipo de Ação</label>
-                    <input type="text" id="typeAction" th:field="*{typeAction}" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="typeAction" class="form-label">Tipo de Ação</label>
-                    <input type="file" id="typeAction" th:field="*{file}" class="form-control" required  />
+                    <label for="file" class="form-label">Arquivo</label>
+                    <input type="file" id="file" name="file" class="form-control" required  />
                 </div>
 
-                <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
+                <button type="button"  class="btn btn-primary " id="btn-salvar">Salvar Tarefa</button>
+                <a class="btn btn-warning btn-sm d-none" id="btn-editar" >Editar</a>
+                <button type="submit" class="btn btn-danger btn-sm d-none" id="btn-deletar" >Deletar</button>
+
             </form>
 
-            <div th:if="${tasks.isEmpty()}">
+            <div  class="text-center" th:if="${tasks.isEmpty()}">
                 <p>Não há tarefas para exibir.</p>
             </div>
 
@@ -48,24 +45,18 @@
                         <th scope="col">#</th>
                         <th scope="col">Descrição</th>
                         <th scope="col">URL do Bucket</th>
-                        <th scope="col">Tipo de Ação</th>
-                        <th scope="col">Ações</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="task : ${tasks}">
-                        <td th:text="${task.id}"></td>
-                        <td th:text="${task.description}"></td>
-                        <td th:text="${task.urlBucket}"></td>
-                        <td th:text="${task.typeAction}"></td>
-                        <td>
-                            <!-- Botões de Editar e Deletar -->
-                            <a th:href="@{/edit/{id}(id=${task.id})}" class="btn btn-warning btn-sm">Editar</a>
-                            <form th:action="@{/delete/{id}(id=${task.id})}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
-                            </form>
-                        </td>
-                    </tr>
+
+                        <tr th:each="task : ${tasks}" th:id="'row'+ ${task.id}" style="cursor: pointer">
+
+                            <td  th:attr="data-id=${task.id}" th:text="${task.id}"></td>
+                            <td  th:text="${task.description}"></td>
+                            <td  th:text="${task.urlBucketFile}"></td>
+
+                        </tr>
+
                     </tbody>
                 </table>
 
@@ -74,8 +65,127 @@
         </div>
 
     </body>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
+
+        $('#btn-salvar').click(function (event){
+            let ev = event.target;
+            let id = $('#id').val();
+
+            if(id != 0){
+                salvarTask(false);
+                return;
+            }
+
+            console.log("Teste botão salvar ");
+
+            salvarTask(true);
+        });
+
+        $('.table-bordered').click(async function (event) {
+
+            let id = $(event.target).data('id');
+            console.log(id);
+
+            console.log("Valor do id " , $(id).data('id'));
+            let tasks = await buscarPorId(id);
+            console.log(tasks.tasks[0]);
+            let task = tasks.tasks[0];
+            $('#description').val(task.description);
+            $('#file').val(task.urlBucketFile);
+        });
+
+        $('#btn-deletar').click(function (event) {
+            let ev = event.target;
+            deleteTask();
+
+        });
+
+        function salvarTask(isSave){
+            event.preventDefault();
+            let form = new FormData(document.getElementById('form-task'));
+
+            for (let [key, value] of form.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
+            if(isSave){
+                 // http://localhost:8085/main
+                $.ajax({
+                    url: '/main/v1/main/save',
+                    type: 'POST',
+                    async: true,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    data: form,
+                    success: function (response) {
+                        console.log("Teste " , response)
+                        if (response.message != undefined) {
+                            window.location.reload();
+                        } else {
+                            console.error("Erro ao salvar");
+                        }
+                    }
+                })
+
+            }else {
+
+                let id = $("id").val();
+                $.ajax({
+                    url: `/main/v1/main/edit/${id}`,
+                    type: 'PuT',
+                    async: true,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    data: form,
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            window.location.reload();
+                        } else {
+                            swal(response.title, response.message, response.status);
+                        }
+                    }
+                });
+
+            }
+
+        }
+
+        function deleteTask(){
+            $.ajax({
+                url: '/main/v1/main/delete',
+                type: 'POST',
+                async: true,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                data: form,
+                success: function (response) {
+                    if (response.status == 'success') {
+                        window.location.reload();
+                    } else {
+                        swal(response.title, response.message, response.status);
+                    }
+                }
+            })
+        }
+
+        function buscarPorId(id){
+            // http://localhost:8085/main
+            console.log("ID  " , id);
+            return $.ajax({
+                url: `/main/v1/main/buscar/${id}`,
+                type: 'GET',
+                async: true,
+                dataType: 'json',
+                success: function (response) {
+                    console.log("Teste " , response)
+                    return response;
+                }
+            })
+        }
 
     </script>
 
