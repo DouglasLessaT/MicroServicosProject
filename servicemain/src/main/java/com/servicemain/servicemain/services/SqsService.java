@@ -46,12 +46,11 @@ public class SqsService {
         listTask.add(result);
     }
 
-    public void postQueue(TaskRequest taskRequest){
+    public synchronized void postQueue(TaskRequest taskRequest){
 
         try {
             String menssagem = objectMapper.writeValueAsString(taskRequest);
             log.info("Menssagem a ser enviada " +menssagem);
-//            sqsTemplate.send(filaResposta, menssagem);
             this.queueMessagingTemplate.send(filaResposta, MessageBuilder.withPayload(menssagem).build());
 
         } catch (JsonProcessingException  e) {
