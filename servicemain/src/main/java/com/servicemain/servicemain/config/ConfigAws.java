@@ -9,6 +9,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,21 +36,12 @@ public class ConfigAws {
     }
 
     @Bean
-    public SqsAsyncClient sqsAsyncClient() {
-        return SqsAsyncClient.builder()
-                .endpointOverride(URI.create("https://sqs.us-east-2.amazonaws.com/891377294367/"))// -> config no host
-                .region(Region.US_EAST_2)
-                .build();
-    }
-
-    @Bean
     public AmazonSQSAsync amazonSQSAsync() {
         return AmazonSQSAsyncClientBuilder.standard()
                 .withRegion(Regions.US_EAST_2)
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials()))
                 .build();
     }
-
 
     @Bean
     public QueueMessagingTemplate queueMessagingTemplate(AmazonSQSAsync amazonSQSAsync) {
@@ -61,5 +54,7 @@ public class ConfigAws {
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials()))
                 .withRegion(Regions.US_EAST_2).build();
     }
+
+
 
 }
