@@ -26,10 +26,10 @@ const toListService = new ToListService();
 
 // Criar um novo item e enviar para a fila
 app.post('/todo', async (req, res) => {
-  const { id, description, urlBucketAws } = req.body;  // Agora espera o UUID
+  const { id, description, urlBucketFIle } = req.body;  // Agora espera o UUID
 
   try {
-    const newTask = await toListService.create({ id, description, urlBucketAws }); // Passa o UUID
+    const newTask = await toListService.create({ id, description, urlBucketFIle }); // Passa o UUID
     await publishToNotificationQueue(newTask); // Publica na fila
     res.status(201).json({ message: 'Tarefa criada com sucesso!', data: newTask });
   } catch (error) {

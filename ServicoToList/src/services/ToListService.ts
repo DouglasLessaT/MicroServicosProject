@@ -20,7 +20,7 @@ export class ToListService {
     const newToList = await toListRepository.create({
       id: id, 
       description: item.description,
-      urlBucketAws: item.urlBucketAws,
+      urlBucketFIle: item.urlBucketFIle,
     });
     
     await this.sendToSQS(newToList, 'notificationQueue');
@@ -84,7 +84,7 @@ export class ToListService {
           const savedToList = await toListRepository.create({
             id: id,
             description: toListData.description,
-            urlBucketAws: toListData.urlBucketAws, // Removido typeAction
+            urlBucketFIle: toListData.urlBucketFIle, // Removido typeAction
           });
   
           console.log(`Tarefa salva no banco a partir da fila ${queueType}:`, savedToList);
