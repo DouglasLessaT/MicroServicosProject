@@ -1,6 +1,7 @@
 package com.servicemain.servicemain.controllers.api;
 
 
+import com.servicemain.servicemain.FileListenerException;
 import com.servicemain.servicemain.model.*;
 import com.servicemain.servicemain.services.S3Service;
 import com.servicemain.servicemain.services.SqsService;
@@ -72,14 +73,50 @@ public class MainApiController {
     @PutMapping("/edit/{id}")
     public ResponseEntity<Object> editTask(
             @PathVariable String id,
-            @RequestBody TaskRequest taskRequest) {
+            @ModelAttribute TaskRequest taskRequest) throws IOException, FileListenerException {
 
+        var taskFinded = listTask.getTasks()
+                .stream()
+                .filter(task -> {
+                    if (task instanceof TaskRequest) {
+                        return ((TaskRequest) task).getId().equals(id);
+                    }
+                    return false;
+                })
+                .findFirst();
 
-        log.info("TEste rota de edição ");
+        if (taskFinded.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tarefa não encontrada.");
+        }
 
-        //sqsService.postQueue(taskRequest);
+        var task = (TaskRequest) taskFinded.get();
 
-        return ResponseEntity.ok().body("Teste editar");
+        log.info("Objeto ",  taskFinded.get());
+        log.info("id "+ id);
+        log.info("Teste rota de edição " + task.toString());
+
+        task.setId(id);
+        task.setDescription(taskRequest.getDescription());
+        log.info("Teste upload " + taskRequest.getUrlBucketFile());
+        if(taskRequest.getUrlBucketFile() != null || taskRequest.getFile() != null) {
+
+            InputStream inputStream = taskRequest.getFile().getInputStream();
+            String fileName = taskRequest.getFile().getOriginalFilename();
+            String urlFile = s3Service.saveFile(inputStream, fileName);
+            log.info("Arquivo salvo no S3 "+ fileName);
+            task.setUrlBucketFile(urlFile);
+
+        }
+
+        task.setTypeAction("PUT");
+
+        sqsService.postQueue(task);
+
+        var responseMessage = new ResponseMessage();
+        responseMessage.setMessage("Tarefa atualizada com sucesso!");
+        responseMessage.setTasks(List.of(task));
+
+        return ResponseEntity.ok().body(responseMessage);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -101,8 +138,8 @@ public class MainApiController {
         var taskRequest = (TaskRequest) taskFinded.get();
         listTask.remove(taskRequest);
         taskRequest.setTypeAction("DELETE");
-        //sqsService.postQueue(taskRequest);
-        //dletar arquivo do S3
+        sqsService.postQueue(taskRequest);
+
         return ResponseEntity.ok().body("Teste editar");
     }
 
@@ -127,8 +164,8 @@ public class MainApiController {
         var taskRequest = (TaskRequest) taskFinded.get();
         taskRequest.setTypeAction("PUT");
         log.info("Objeto encontrado "+taskRequest.toString());
-        sqsService.postQueue(taskRequest);
-        var taskResponse = TaskConverte.convertToResponse(taskRequest);
+
+        TaskResponse taskResponse = TaskConverte.convertToResponse(taskRequest);
 
         var responseMessage = new ResponseMessageTask();
         responseMessage.setMessage("Teste buscar");

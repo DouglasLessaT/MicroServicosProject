@@ -1,9 +1,11 @@
 package com.servicemain.servicemain.controllers;
 
+import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.servicemain.servicemain.model.ListTask;
 import com.servicemain.servicemain.model.TaskRequest;
 import com.servicemain.servicemain.services.S3Service;
 import com.servicemain.servicemain.services.SqsService;
+import com.servicemain.servicemain.services.TestConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -22,11 +24,16 @@ import java.util.List;
 public class MainController {
 
     private final ListTask listTask;
+    private final SqsService consumer;
+    private final AmazonSQSAsync amazonSQSAsync;
 
     @GetMapping
     public String index(Model model) {
 
+        consumer.consumeManually(amazonSQSAsync);
         var result = listTask.getTasks();
+
+        log.info("Teste lista de tarefas "+result);
         log.info("Teste tela");
         model.addAttribute("tasks", result);
         return "index";
