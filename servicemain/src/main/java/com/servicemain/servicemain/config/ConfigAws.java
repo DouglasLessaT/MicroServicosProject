@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
+import io.awspring.cloud.messaging.config.annotation.EnableSqs;
 import io.awspring.cloud.messaging.core.QueueMessagingTemplate;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,5 @@ public class ConfigAws {
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials()))
                 .withRegion(Regions.US_EAST_2).build();
     }
-
-
 
 }

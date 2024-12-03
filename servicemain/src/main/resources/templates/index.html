@@ -28,9 +28,9 @@
                     <input type="file" id="file" name="file" class="form-control" required  />
                 </div>
 
-                <button type="button"  class="btn btn-primary " id="btn-salvar">Salvar Tarefa</button>
-                <a class="btn btn-warning btn-sm d-none" id="btn-editar" >Editar</a>
-                <button type="submit" class="btn btn-danger btn-sm d-none" id="btn-deletar" >Deletar</button>
+                <button type="submit"  class="btn btn-primary " id="btn-salvar">Salvar Tarefa</button>
+
+                <button type="button" class="btn btn-danger btn-sm d-none" id="btn-deletar" >Deletar</button>
 
             </form>
 
@@ -73,35 +73,42 @@
             let id = $('#id').val();
 
             if(id != 0){
-                salvarTask(false);
+                salvarTask(false, id);
                 return;
             }
 
             console.log("Teste botão salvar ");
 
             salvarTask(true);
+            return;
         });
 
         $('.table-bordered').click(async function (event) {
 
             let id = $(event.target).data('id');
             console.log(id);
-
             console.log("Valor do id " , $(id).data('id'));
+
             let tasks = await buscarPorId(id);
+
             console.log(tasks.tasks[0]);
             let task = tasks.tasks[0];
+
             $('#description').val(task.description);
-            $('#file').val(task.urlBucketFile);
+            $('#id').val(task.id);
+            console.log($('#id').val());
+            console.log($('#description').val());
+            $('#btn-deletar').removeClass('d-none');
+
         });
 
         $('#btn-deletar').click(function (event) {
-            let ev = event.target;
-            deleteTask();
-
+            let id = $("#id").val();
+            console.log("Teste deletar" , id);
+            deleteTask(id);
         });
 
-        function salvarTask(isSave){
+        function salvarTask(isSave, id){
             event.preventDefault();
             let form = new FormData(document.getElementById('form-task'));
 
@@ -131,20 +138,23 @@
 
             }else {
 
-                let id = $("id").val();
+                console.log("Id " ,id);
+                console.log("Arquivo ", $('#file').val());
+                console.log("Desc " , $('#description').val());
+
                 $.ajax({
                     url: `/main/v1/main/edit/${id}`,
-                    type: 'PuT',
+                    type: 'PUT',
                     async: true,
-                    contentType: false,
                     processData: false,
+                    contentType: false,
                     dataType: 'json',
                     data: form,
                     success: function (response) {
-                        if (response.status == 'success') {
+                        if (response.message != undefined) {
                             window.location.reload();
                         } else {
-                            swal(response.title, response.message, response.status);
+                            console.error("Erro ao editar");
                         }
                     }
                 });
@@ -153,20 +163,20 @@
 
         }
 
-        function deleteTask(){
+        function deleteTask(id){
+
             $.ajax({
-                url: '/main/v1/main/delete',
-                type: 'POST',
+                url: `/main/v1/main/delete/${id}`,
+                type: 'DELETE',
                 async: true,
                 contentType: false,
                 processData: false,
                 dataType: 'json',
-                data: form,
                 success: function (response) {
-                    if (response.status == 'success') {
+                    if (response.message != undefined) {
                         window.location.reload();
                     } else {
-                        swal(response.title, response.message, response.status);
+                        console.error("Erro ao editar");
                     }
                 }
             })
