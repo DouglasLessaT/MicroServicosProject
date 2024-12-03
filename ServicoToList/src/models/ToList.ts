@@ -10,5 +10,5 @@ export class ToList {
   description!: string;
 
   @Column({ nullable: true })
-  urlBucketAws?: string;
+  urlBucketFIle?: string;
 }

@@ -1,0 +1,3 @@
+CREATE DATABASE toListBd
+    DEFAULT CHARACTER SET = 'utf8mb4';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Ronaldinho1234';
